@@ -33,7 +33,7 @@ XJudge Scrapping Service is a Java-based application that scrapes problem data f
             "title": "String",
             "value": {
                 "format": "String",
-                "content": "String as HTML"
+                "content": "HTML as String"
             }
         }
     ],
