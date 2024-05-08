@@ -14,9 +14,11 @@ public class ProblemController {
 
     private final ProblemService problemService;
 
-    @GetMapping("/problem/{source}-{code}")
-    public String scrapProblem(@PathVariable String source, @PathVariable String code, Model model) {
-        Problem problem = problemService.getProblem(source, code);
+    @GetMapping("/problem/{source}/{contestId}/{problemId}")
+    public String scrapProblem(@PathVariable String source,
+                               @PathVariable String contestId,
+                               @PathVariable String problemId, Model model) {
+        Problem problem = problemService.getProblem(source, contestId, problemId);
         model.addAttribute("problem", problem);
         return "problem-description";
     }

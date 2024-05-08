@@ -20,14 +20,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CodeforcesScrapping implements Scrapping {
+public class CodeforcesScrapping implements ScrappingStrategy {
 
     private final PropertyRepository propertyRepository;
     private final SectionRepository sectionRepository;
     private final ValueRepository valueRepository;
 
     @Override
-    public Problem start(String contestId, String problemId) {
+    public Problem scrap(String contestId, String problemId) {
         String URL = "https://codeforces.com";
         String targetProblem = URL + "/problemset/problem/" + contestId + "/" + problemId;
         String contestLink = URL + "/contest/" + contestId;
@@ -40,8 +40,8 @@ public class CodeforcesScrapping implements Scrapping {
         }
 
         Elements htmlSections = problemDocument.select(".problem-statement > div");
-
         String problemTitle = htmlSections.getFirst().select(".title").text().split("\\.")[1].substring(1);
+        String contestName = problemDocument.select(".rtable > tbody > tr > th > a").getFirst().text();
 
         List<Property> properties = List.of(
                 Property.builder().title("Time Limit").content(htmlSections.getFirst().select(".time-limit").text().substring(20)).spoiler(false).build(),
@@ -67,10 +67,12 @@ public class CodeforcesScrapping implements Scrapping {
 
         return Problem.builder()
                 .code(contestId+problemId)
-                .onlineJudge(OnlineJudge.CodeForces)
+                .onlineJudge(OnlineJudge.codeforces)
                 .title(problemTitle)
+                .contestName(contestName)
                 .problemLink(targetProblem)
                 .contestLink(contestLink)
+                .prependHtml(getPrependHtml())
                 .sections(problemSections)
                 .properties(properties)
                 .build();
@@ -124,6 +126,21 @@ public class CodeforcesScrapping implements Scrapping {
             }
         }
         return samplesList;
+    }
+
+    private String getPrependHtml() {
+        return """
+                <!-- MathJax -->
+                    <script type="text/x-mathjax-config" th:inline="none">
+                        MathJax.Hub.Config({
+                          tex2jax: {inlineMath: [['$$$','$$$']], displayMath: [['$$$$$$','$$$$$$']]}
+                        });
+                    </script>
+                    <script type="text/javascript" async
+                            src="https://mathjax.codeforces.org/MathJax.js?config=TeX-AMS_HTML-full">
+                    </script>
+                    <!-- /MathJax -->
+                """;
     }
 
 }

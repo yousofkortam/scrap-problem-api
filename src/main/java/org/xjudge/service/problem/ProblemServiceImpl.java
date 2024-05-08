@@ -5,8 +5,9 @@ import org.springframework.stereotype.Service;
 import org.xjudge.entity.Problem;
 import org.xjudge.enums.OnlineJudge;
 import org.xjudge.repository.ProblemRepository;
-import org.xjudge.service.scrapping.Scrapping;
+import org.xjudge.service.scrapping.ScrappingStrategy;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -14,18 +15,19 @@ import java.util.Optional;
 public class ProblemServiceImpl implements ProblemService {
 
     private final ProblemRepository problemRepository;
-    private final Scrapping scrapping;
+    private final Map<OnlineJudge, ScrappingStrategy> scrappingStrategies;
 
     @Override
-    public Problem getProblem(String source, String code) {
-        Optional<Problem> problem = problemRepository.findByCodeAndOnlineJudge(code, OnlineJudge.valueOf(source));
-        return problem.orElseGet(() -> scrapCodeforcesProblem(code));
+    public Problem getProblem(String source, String contestId, String problemId) {
+        String code = contestId + problemId;
+        Optional<Problem> problem = problemRepository.findByCodeAndOnlineJudge(code, OnlineJudge.valueOf(source.toLowerCase()));
+        return problem.orElseGet(() -> scrapProblem(source, contestId, problemId));
     }
 
-    public Problem scrapCodeforcesProblem(String code) {
-        String contestId = code.replaceAll("(\\d+).*", "$1");
-        String problemId = code.replaceAll("\\d+(.*)", "$1");
-        return problemRepository.save(scrapping.start(contestId, problemId));
+    private Problem scrapProblem(String source, String contestId, String problemId) {
+        ScrappingStrategy strategy = scrappingStrategies.get(OnlineJudge.valueOf(source.toLowerCase()));
+        Problem problem = strategy.scrap(contestId, problemId);
+        return problemRepository.save(problem);
     }
 
 }

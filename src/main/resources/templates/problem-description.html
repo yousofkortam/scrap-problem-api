@@ -5,22 +5,13 @@
     <link rel="stylesheet" th:href="@{/css/problem-description.css}">
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script th:href="@{/js/bootstrap.min.js}"></script>
-    <!-- MathJax -->
-    <script type="text/x-mathjax-config" th:inline="none">
-        MathJax.Hub.Config({
-          tex2jax: {inlineMath: [['$$$','$$$']], displayMath: [['$$$$$$','$$$$$$']]}
-        });
-    </script>
-    <script type="text/javascript" async
-            src="https://mathjax.codeforces.org/MathJax.js?config=TeX-AMS_HTML-full">
-    </script>
-    <!-- /MathJax -->
+    <div th:utext="${problem.prependHtml}"></div>
     <title>Problem Description</title>
 </head>
 <body>
-<div class="description ms-5 me-5">
-    <div th:each="section : ${problem.sections}" class="pt-5">
-        <h4 th:text="${section.title}" class="fw-bolder"></h4>
+<div class="description p-5">
+    <div th:each="section : ${problem.sections}">
+        <h4 class="fw-bolder" th:text="${section.title}"></h4>
         <p th:utext="${section.value.content}" style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #333;"></p>
     </div>
 </div>

@@ -20,8 +20,12 @@ public class Problem {
     private String code;
     private OnlineJudge onlineJudge;
     private String title;
+    private String contestName;
     private String problemLink;
     private String contestLink;
+    @Column(columnDefinition = "LONGTEXT")
+    @Lob
+    private String prependHtml;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Section> sections;
     @OneToMany(cascade = CascadeType.ALL)
